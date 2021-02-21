@@ -1,11 +1,6 @@
-import fetch from 'node-fetch';
-import {
-  AuthHostOrigin,
-  buildAuth,
-  buildAuthHeaders,
-  getAuthCookies
-} from './auth';
-import { buildCookieString } from './connection';
+import axios from "axios";
+import {AuthHostOrigin, buildAuth, buildAuthHeaders, getAuthCookies} from './auth';
+import {buildCookieString} from './connection';
 
 export interface PartialProblemResponse {
   category?: string;
@@ -19,7 +14,7 @@ export interface PlagiarismResult extends PartialProblemResponse {
   hasPlagiarism: boolean;
 }
 
-export function getPlagiarismHostOrigin(): AuthHostOrigin {
+export function getPlagiarismHostOrigin (): AuthHostOrigin {
   return {
     Host: 'capi.grammarly.com',
     Origin: 'https://www.grammarly.com'
@@ -32,8 +27,8 @@ export function getPlagiarismHostOrigin(): AuthHostOrigin {
  *
  * @author Stewart McGown
  */
-export async function plagiarism(text: string): Promise<PlagiarismResult> {
-  const { Host, Origin } = getPlagiarismHostOrigin();
+export async function plagiarism (text: string): Promise<PlagiarismResult> {
+  const {Host, Origin} = getPlagiarismHostOrigin();
 
   const auth = await buildAuth(
     Origin,
@@ -41,19 +36,22 @@ export async function plagiarism(text: string): Promise<PlagiarismResult> {
     'https://www.grammarly.com/plagiarism-checker'
   );
 
-  const results: PartialProblemResponse[] = await fetch(
-    'https://capi.grammarly.com/api/check',
+  const headers = buildAuthHeaders(
+    buildCookieString(getAuthCookies(auth)),
+    auth.gnar_containerId,
+    Origin,
+    Host
+  );
+  headers['Content-Type'] = 'text/plain;charset=UTF-8';
+  const response = await axios.request(
     {
-      method: 'POST',
-      headers: buildAuthHeaders(
-        buildCookieString(getAuthCookies(auth)),
-        auth.gnar_containerId,
-        Origin,
-        Host
-      ),
-      body: text
+      url: 'https://capi.grammarly.com/api/check',
+      data: text,
+      method: "POST",
+      headers
     }
-  ).then(r => r.json());
+  );
+  const results: PartialProblemResponse[] = response.data;
 
   const detected: PartialProblemResponse = results.find(
     r => r.category === 'Plagiarism' || r.group === 'Plagiarism'
