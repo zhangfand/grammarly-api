@@ -1,4 +1,4 @@
-import axios from "axios";
+import fetch from "node-fetch";
 import { buildCookieString, CookieOptions } from './connection';
 import env from './env';
 import { cookieToObject } from './utils';
@@ -180,9 +180,8 @@ export async function buildAuth(
   const gnar_containerId = generateContainerId();
   const redirect_location = generateRedirectLocation();
 
-  const response = await axios.request({
-    url: authUrl || generateAuthURL(),
-    headers:buildAuthHeaders(
+  const response = await fetch(authUrl || generateAuthURL(), {
+    headers: buildAuthHeaders(
       buildCookieString({
         ...getAuthCookies({
           gnar_containerId,
@@ -193,13 +192,13 @@ export async function buildAuth(
       origin,
       host
     )
-  })
+  });
 
-  if (response.status !== 200) {
+  if (!response.ok) {
     throw new Error('Unable to create a session with these credentials.');
   }
 
-  const cookies = parseResponseCookies(response.headers['set-cookie']);
+  const cookies = parseResponseCookies(response.headers.raw()['set-cookie']);
 
   return {
     gnar_containerId,

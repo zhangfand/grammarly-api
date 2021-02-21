@@ -1,4 +1,4 @@
-import axios from "axios";
+import fetch from "node-fetch";
 import {AuthHostOrigin, buildAuth, buildAuthHeaders, getAuthCookies} from './auth';
 import {buildCookieString} from './connection';
 
@@ -36,22 +36,19 @@ export async function plagiarism (text: string): Promise<PlagiarismResult> {
     'https://www.grammarly.com/plagiarism-checker'
   );
 
-  const headers = buildAuthHeaders(
-    buildCookieString(getAuthCookies(auth)),
-    auth.gnar_containerId,
-    Origin,
-    Host
-  );
-  headers['Content-Type'] = 'text/plain;charset=UTF-8';
-  const response = await axios.request(
+  const results: PartialProblemResponse[] = await fetch(
+    'https://capi.grammarly.com/api/check',
     {
-      url: 'https://capi.grammarly.com/api/check',
-      data: text,
-      method: "POST",
-      headers
+      method: 'POST',
+      headers: buildAuthHeaders(
+        buildCookieString(getAuthCookies(auth)),
+        auth.gnar_containerId,
+        Origin,
+        Host
+      ),
+      body: text
     }
-  );
-  const results: PartialProblemResponse[] = response.data;
+  ).then(r => r.json());
 
   const detected: PartialProblemResponse = results.find(
     r => r.category === 'Plagiarism' || r.group === 'Plagiarism'
