@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import WebSocket from 'isomorphic-ws';
 import { connect } from '../src/lib/connection';
 
 describe('connection tests', () => {

@@ -51,9 +51,10 @@
   "dependencies": {
     "axios": "^0.21.1",
     "consola": "^2.10.1",
+    "isomorphic-ws": "^4.0.1",
     "node-fetch": "^2.6.1",
     "uuid": "^3.3.2",
-    "ws": "^7.1.2"
+    "ws": "^7.4.3"
   },
   "devDependencies": {
     "@bitjson/npm-scripts-info": "^1.0.0",

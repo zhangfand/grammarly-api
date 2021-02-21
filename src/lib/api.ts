@@ -1,5 +1,5 @@
 import consola from 'consola';
-import WebSocket, { MessageEvent } from 'ws';
+import WebSocket, { MessageEvent } from 'isomorphic-ws';
 import { RequiredAuth } from './auth';
 import { connect } from './connection';
 import { BaseMessage, buildInitialMessage, buildOTMessage } from './messages';

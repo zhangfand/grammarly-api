@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import WebSocket from 'isomorphic-ws';
 import { Auth, RequiredAuth } from './auth';
 export interface Headers extends StringObject {
     'User-Agent': string;
